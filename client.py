@@ -2,7 +2,7 @@ import requests
 import torch.nn.functional as F
 from tqdm import tqdm
 
-from net import model
+from model import Net
 
 local_data = ...
 
