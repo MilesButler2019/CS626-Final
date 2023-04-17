@@ -1,4 +1,5 @@
 from flask import Flask, request, jsonify
+import flask
 import torch
 from model import Net
 import json
