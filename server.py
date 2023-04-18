@@ -20,8 +20,14 @@ global_weights = torch.load('model_checkpoint.pt')
 def upload_file():
     # Get the uploaded file
     uploaded_file = request.files["model_file"]
+    
+    file_contents = uploaded_file.read()
     # Save the file to disk
-    uploaded_file.save(request.files["file_name"])
+    file_name = os.path.join('/home/ubuntu/CS626-Final/models', request.files["file_name"])
+    
+    with open(file_name, 'wb') as f:
+        f.write(file_contents)
+        
     return "File uploaded successfully"
  
 
