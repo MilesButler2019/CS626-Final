@@ -21,7 +21,7 @@ def upload_file():
     # Get the uploaded file
     uploaded_file = request.files["model_file"]
     # Save the file to disk
-    uploaded_file.save(os.path.join('/home/ubuntu/CS626-Final/models'), request.files["file_name"])
+    uploaded_file.save(request.files["file_name"])
     return "File uploaded successfully"
  
 
