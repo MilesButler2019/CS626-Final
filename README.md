@@ -1,6 +1,6 @@
 # CS 226-Final
 
-## Ways to Handle dropping CLients
+## Ways to Handle dropping Clients
 
 Handling the dropout of clients during federated learning is an important aspect of the design of a federated learning system. Here are a few approaches that can be used to handle client dropout:
 
