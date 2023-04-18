@@ -8,7 +8,12 @@ local_data = ...
 
 
 
-model = requests.get('http://3.84.112.131:5000/get_global_model')
+response = requests.get('http://3.84.112.131:5000/get_global_model')
+global_model_params = response.json()
+
+
+local_model = Net()
+local_model.load_state_dict(global_model_params)
 
 num_epochs = 1
 for epoch in range(num_epochs):
