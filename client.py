@@ -8,8 +8,9 @@ local_data = ...
 
 
 
-model = request.get('http://3.84.112.131/get_global_model')
+model = requests.get('http://3.84.112.131/get_global_model')
 
+num_epochs = 1
 for epoch in range(num_epochs):
     local_model_params = model.state_dict()
     optimizer = optim.SGD(local_model.parameters(), lr=lr)
