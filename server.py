@@ -2,7 +2,9 @@ from flask import Flask, request, jsonify
 import flask
 import torch
 from model import Net
+from torchvision import datasets, transforms
 import json
+import numpy as np
 
 app = flask.Flask(__name__)
 
