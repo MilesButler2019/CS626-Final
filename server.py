@@ -5,6 +5,7 @@ from model import Net
 from torchvision import datasets, transforms
 import json
 import numpy as np
+import torch.utils.data as data_utils
 
 app = flask.Flask(__name__)
 
