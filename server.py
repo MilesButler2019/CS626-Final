@@ -7,7 +7,29 @@ import json
 app = flask.Flask(__name__)
 
       
+@app.route('/get_trainset', methods=['GET'])
+def get_trainset():
+    # Get the client ID from the request
+    client_id = int(request.args.get('client_id'))
 
+    # Get the corresponding trainset
+    trainset = trainsets[client_id]
+
+    # Convert the trainset to a DataLoader
+    trainloader = data_utils.DataLoader(trainset, batch_size=batch_size, shuffle=True)
+
+    # Serialize the trainset and return it as a response to the client
+    serialized_trainset = []
+    for inputs, labels in trainloader:
+        serialized_inputs = inputs.tolist()
+        serialized_labels = labels.tolist()
+        serialized_trainset.append((serialized_inputs, serialized_labels))
+
+    return json.dumps(serialized_trainset)
+      
+      
+      
+ 
 
 @app.route('/get_global_model', methods=['GET'])
 def get_global_model():
