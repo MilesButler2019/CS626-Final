@@ -13,7 +13,7 @@ global_model = torch.load('model_checkpoint.pt')
 @app.route('/get_global_model', methods=['GET'])
 def get_global_model():
     # Serialize the global model to a JSON string
-    global_model_json = json.dumps(global_model.state_dict())
+    global_model_json = json.dumps(global_model)
 
     # Return the serialized global model as a response to the client
     return global_model_json
