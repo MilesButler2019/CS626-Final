@@ -10,65 +10,68 @@ import torch.utils.data as data_utils
 app = flask.Flask(__name__)
 
 
-trainset = datasets.MNIST('data', download=True, train=True, transform=transforms.Compose([
-    transforms.ToTensor(),
-    transforms.Normalize((0.1307,), (0.3081,))
-]))
-testset = datasets.MNIST('data', download=True, train=False, transform=transforms.Compose([
-    transforms.ToTensor(),
-    transforms.Normalize((0.1307,), (0.3081,))
-]))
+num_clients = 0
 
-# Shuffle the data
-indices = np.arange(len(trainset))
-np.random.shuffle(indices)
-trainset.data = trainset.data[indices]
-trainset.targets = trainset.targets[indices]
+global_weights = torch.load('model_checkpoint.pt')
 
 
-# Divide the data into n subsets
-batch_size = 32
-n = 5
-subset_size = len(trainset) // n
-trainsets = [torch.utils.data.Subset(trainset, range(i * subset_size, (i + 1) * subset_size)) for i in range(n)]
+weights_dict = {}
 
-# Reserve a portion of the data as a test set
-testloader = torch.utils.data.DataLoader(testset, batch_size=batch_size, shuffle=False)
+@app.route('/submit_weights', methods=['POST'])
+def submit_weights():
+    # Extract the client ID from the request
+    client_id = request.form.get('client_id')
 
-      
-@app.route('/get_trainset', methods=['GET'])
-def get_trainset():
-    # Get the client ID from the request
-    client_id = int(request.args.get('client_id'))
+    # Extract the weights from the request
+    weights = request.form.get('weights')
 
-    # Get the corresponding trainset
-    trainset = trainsets[client_id]
+    # Store the weights in the dictionary
+    weights_dict[client_id] = weights
 
-    # Convert the trainset to a DataLoader
-    trainloader = data_utils.DataLoader(trainset, batch_size=batch_size, shuffle=True)
+    # Check if we have received weights from all clients
+    if len(weights_dict) == NUM_CLIENTS:
+        # Aggregate the weights
+        global_weights = aggregate_weights(weights_dict)
 
-    # Serialize the trainset and return it as a response to the client
-    serialized_trainset = []
-    for inputs, labels in trainloader:
-        serialized_inputs = inputs.tolist()
-        serialized_labels = labels.tolist()
-        serialized_trainset.append((serialized_inputs, serialized_labels))
+        # Reset the weights dictionary for the next round
+        weights_dict = {}
 
-    return json.dumps(serialized_trainset)
-      
-      
-      
+        # Return the global weights to the clients
+        return global_weights
+    else:
+        # Return a response indicating that the weights were received
+        return 'Weights received'
+
+def aggregate_weights(weights_dict):
+    # Compute the total number of clients
+    num_clients = len(weights_dict)
+
+    # Initialize the global weights to zero
+    global_weights = [0] * NUM_WEIGHTS
+
+    # Sum the weights from each client
+    for client_weights in weights_dict.values():
+        for i, weight in enumerate(client_weights):
+            global_weights[i] += weight
+
+    # Average the weights by the number of clients
+    for i in range(NUM_WEIGHTS):
+        global_weights[i] /= num_clients
+
+    # Return the global weights as a string
+    return ','.join(str(weight) for weight in global_weights)
+          
  
 
 @app.route('/get_global_model', methods=['GET'])
 def get_global_model():
-    loaded_object = torch.load('model_checkpoint.pt')
+    global global_weights
     # If the loaded object is an OrderedDict, convert it to a PyTorch model
-    if isinstance(loaded_object, dict):
+    if isinstance(global_weights, dict):
         model = Net()
-        model.load_state_dict(loaded_object)
+        model.load_state_dict(global_weights)
     else:
-        model = loaded_object
+        model = global_weights
 
     # Extract the model parameters and convert them to a dictionary
     model_params = model.state_dict()
