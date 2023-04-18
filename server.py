@@ -15,52 +15,13 @@ num_clients = 0
 global_weights = torch.load('model_checkpoint.pt')
 
 
-weights_dict = {}
-
-@app.route('/submit_weights', methods=['POST'])
-def submit_weights():
-    # Extract the client ID from the request
-    client_id = request.form.get('client_id')
-
-    # Extract the weights from the request
-    weights = request.form.get('weights')
-
-    # Store the weights in the dictionary
-    weights_dict[client_id] = weights
-
-    # Check if we have received weights from all clients
-    if len(weights_dict) == NUM_CLIENTS:
-        # Aggregate the weights
-        global_weights = aggregate_weights(weights_dict)
-
-        # Reset the weights dictionary for the next round
-        weights_dict = {}
-
-        # Return the global weights to the clients
-        return global_weights
-    else:
-        # Return a response indicating that the weights were received
-        return 'Weights received'
-
-def aggregate_weights(weights_dict):
-    # Compute the total number of clients
-    num_clients = len(weights_dict)
-
-    # Initialize the global weights to zero
-    global_weights = [0] * NUM_WEIGHTS
-
-    # Sum the weights from each client
-    for client_weights in weights_dict.values():
-        for i, weight in enumerate(client_weights):
-            global_weights[i] += weight
-
-    # Average the weights by the number of clients
-    for i in range(NUM_WEIGHTS):
-        global_weights[i] /= num_clients
-
-    # Return the global weights as a string
-    return ','.join(str(weight) for weight in global_weights)
-          
+@app.route("/upload", methods=["POST"])
+def upload_file():
+    # Get the uploaded file
+    uploaded_file = request.files["model_file"]
+    # Save the file to disk
+    uploaded_file.save()
+    return "File uploaded successfully"
  
 
 @app.route('/get_global_model', methods=['GET'])
