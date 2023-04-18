@@ -6,6 +6,31 @@ import json
 
 app = flask.Flask(__name__)
 
+
+trainset = datasets.MNIST('data', download=True, train=True, transform=transforms.Compose([
+    transforms.ToTensor(),
+    transforms.Normalize((0.1307,), (0.3081,))
+]))
+testset = datasets.MNIST('data', download=True, train=False, transform=transforms.Compose([
+    transforms.ToTensor(),
+    transforms.Normalize((0.1307,), (0.3081,))
+]))
+
+# Shuffle the data
+indices = np.arange(len(trainset))
+np.random.shuffle(indices)
+trainset.data = trainset.data[indices]
+trainset.targets = trainset.targets[indices]
+
+
+# Divide the data into n subsets
+n = 5
+subset_size = len(trainset) // n
+trainsets = [torch.utils.data.Subset(trainset, range(i * subset_size, (i + 1) * subset_size)) for i in range(n)]
+
+# Reserve a portion of the data as a test set
+testloader = torch.utils.data.DataLoader(testset, batch_size=64, shuffle=False)
+
       
 @app.route('/get_trainset', methods=['GET'])
 def get_trainset():
