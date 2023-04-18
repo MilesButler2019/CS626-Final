@@ -6,6 +6,7 @@ from torchvision import datasets, transforms
 import json
 import numpy as np
 import torch.utils.data as data_utils
+import os
 
 app = flask.Flask(__name__)
 
@@ -20,7 +21,7 @@ def upload_file():
     # Get the uploaded file
     uploaded_file = request.files["model_file"]
     # Save the file to disk
-    uploaded_file.save(request.files["file_name"])
+    uploaded_file.save(os.path.join('/home/ubuntu/CS626-Final/models', uploaded_file.filename))
     return "File uploaded successfully"
  
 
