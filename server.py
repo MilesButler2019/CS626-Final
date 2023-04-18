@@ -27,12 +27,13 @@ trainset.targets = trainset.targets[indices]
 
 
 # Divide the data into n subsets
+batch_size = 32
 n = 5
 subset_size = len(trainset) // n
 trainsets = [torch.utils.data.Subset(trainset, range(i * subset_size, (i + 1) * subset_size)) for i in range(n)]
 
 # Reserve a portion of the data as a test set
-testloader = torch.utils.data.DataLoader(testset, batch_size=64, shuffle=False)
+testloader = torch.utils.data.DataLoader(testset, batch_size=batch_size, shuffle=False)
 
       
 @app.route('/get_trainset', methods=['GET'])
