@@ -8,12 +8,19 @@ app = flask.Flask(__name__)
 
       
 
-global_model = torch.load('model_checkpoint.pt')
 
 @app.route('/get_global_model', methods=['GET'])
 def get_global_model():
+    loaded_object = torch.load('model_checkpoint.pt')
+    # If the loaded object is an OrderedDict, convert it to a PyTorch model
+    if isinstance(loaded_object, dict):
+        model = MyModelClass()
+        model.load_state_dict(loaded_object)
+    else:
+        model = loaded_object
+
     # Extract the model parameters and convert them to a dictionary
-    model_params = global_model.state_dict()
+    model_params = model.state_dict()
     model_params_dict = {}
     for param_name, param_tensor in model_params.items():
         model_params_dict[param_name] = param_tensor.tolist()
@@ -23,6 +30,7 @@ def get_global_model():
 
     # Return the serialized model parameters as a response to the client
     return model_params_json
+
 
 
 
