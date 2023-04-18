@@ -8,7 +8,7 @@ local_data = ...
 
 
 
-model = requests.get('http://3.84.112.131/get_global_model', port=5000)
+model = requests.get('http://3.84.112.131:5000/get_global_model')
 
 num_epochs = 1
 for epoch in range(num_epochs):
