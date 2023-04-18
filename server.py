@@ -14,7 +14,7 @@ def get_global_model():
     loaded_object = torch.load('model_checkpoint.pt')
     # If the loaded object is an OrderedDict, convert it to a PyTorch model
     if isinstance(loaded_object, dict):
-        model = MyModelClass()
+        model = Net()
         model.load_state_dict(loaded_object)
     else:
         model = loaded_object
